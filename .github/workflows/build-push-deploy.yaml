@@ -1,0 +1,90 @@
+name: FLASK_DEPLOYMENT_EKS
+
+on:
+  push:
+    branches:
+      - main  
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Login to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Docker build and push
+      uses: docker/build-push-action@v4
+      with:
+        push: true
+        tags: nosaugowe/epltable:latest
+
+    - name: Set up AWS CLI
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-2  
+
+    - name: Install kubectl
+      run: |
+        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+        chmod +x kubectl
+        sudo mv kubectl /usr/local/bin/
+
+    - name: Verify kubectl version
+      run: kubectl version --client
+
+    - name: Install Terraform
+      run: |
+        wget https://releases.hashicorp.com/terraform/1.0.0/terraform_1.0.0_linux_amd64.zip
+        unzip terraform_1.0.0_linux_amd64.zip
+        chmod +x terraform
+        sudo mv terraform /usr/local/bin/
+        terraform --version
+
+    - name: Terraform Init
+      run: terraform init
+      working-directory: $GITHUB_WORKSPACE/terraform  
+
+    - name: Terraform Apply
+      run: terraform apply -auto-approve
+      working-directory: $GITHUB_WORKSPACE/terraform 
+
+    - name: Update KubeContext
+      run: make update_kubecontext
+      working-directory: $GITHUB_WORKSPACE/FlaskApp-Kubernetes 
+
+    - name: Install Helm
+      run: |
+        curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
+        chmod +x get_helm.sh
+        ./get_helm.sh
+    
+    - name: Deploy Kube-Prometheus-Stack
+      run: |
+        helm install --install kube_stack https://github.com/prometheus-community/helm-charts \
+          --values $GITHUB_WORKSPACE/template/prometheus-values.yaml \
+          --namespace=monitoring \
+          --version=50.3.1 \
+          --create-namespace
+
+    - name: Deploy Loki-HelmChart
+      run: |
+        helm install --install loki-stack https://grafana.github.io/loki/charts \
+          --values $GITHUB_WORKSPACE/template/prometheus-values.yaml \
+          --version=2.9.11 \
+          --namespace=monitoring
+
+    - name: Deploy Tempo-HelmChart
+      run: |
+        helm install --install tempo-stack https://grafana.github.io/helm-charts \
+          --values $GITHUB_WORKSPACE/template/prometheus-values.yaml  \
+          --namespace monitoring \
+          --version=5.18.0 \

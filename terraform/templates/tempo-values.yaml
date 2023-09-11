@@ -1,0 +1,18 @@
+---
+global:
+  clusterDomain: 'cluster.local'
+
+storage:
+  trace:
+    backend: local
+    local:
+      path: /var/tempo/traces
+    wal:
+      path: /var/tempo/wal
+serviceMonitor:
+  enabled: enabled
+  interval: ""
+  additionalLabels:
+    prometheus: devops
+  annotations: {}
+  # scrapeTimeout: 10s

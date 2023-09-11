@@ -1,0 +1,18 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: epl_servicemonitor
+  namespace: epl
+  labels:
+    prometheus: devops
+spec:
+  namespaceSelector:
+    matchNames:
+      - epl
+  selector:
+    matchLabels:
+      app: eplstatusreport
+  endpoints:
+    - port: http-metrics
+      path: /metrics

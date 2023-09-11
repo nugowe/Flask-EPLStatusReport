@@ -1,0 +1,35 @@
+---
+defaultRules:
+  rules:
+    etcd: false
+    kubeScheduler: false
+kubeControllerManager:
+  enabled: false
+kubeEtcd:
+  enabled: false
+kubeScheduler:
+  enabled: false
+prometheus:
+  prometheusSpec:
+    podMonitorSelector:
+      matchLabels:
+        prometheus: devops
+    podMonitorNamespaceSelector:
+      matchLabels:
+        monitoring: prometheus
+    serviceMonitorNamespaceSelector:
+      matchLabels:
+        monitoring: prometheus
+    probeSelector:
+      matchLabels:
+        prometheus: devops
+  probeNamespaceSelector:
+    matchLabels:
+      monitoring: prometheus
+    serviceMonitorSelector:
+      matchLabels:
+        prometheus: devops
+commonLabels:
+  prometheus: devops
+grafana:
+  adminPassword: test123

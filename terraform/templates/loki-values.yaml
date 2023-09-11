@@ -1,0 +1,31 @@
+loki:
+  enabled: true
+  isDefault: true
+  url: http://{{(include "loki.serviceName" .)}}:{{ .Values.loki.service.port }}
+  readinessProbe:
+    httpGet:
+      path: /ready
+      port: http-metrics
+    initialDelaySeconds: 45
+  livenessProbe:
+    httpGet:
+      path: /ready
+      port: http-metrics
+    initialDelaySeconds: 45
+  datasource:
+    jsonData: "{}"
+    uid: ""
+minio:
+  enabled: true
+
+test:
+  enabled: true
+
+lokiCanary:
+    enabled: true
+
+serviceMonitor:
+  enabled: true 
+  namespaceSelector: 
+    matchLabels:
+        prometheus: devops  

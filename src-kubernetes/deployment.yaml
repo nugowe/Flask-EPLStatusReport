@@ -1,0 +1,35 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eplstatusreport
+  namespace: epl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: eplstatusreport
+  template:
+    metadata:
+      labels:
+        app: eplstatusreport
+    spec:
+      containers:
+        - name: eplstatusreport-container
+          image: nosaugowe/epl-flask:latest
+          imagePullPolicy: Always
+          command: ["/bin/sh", "-c"]
+          args:
+            - supervisord -c /etc/supervisor/conf.d/supervisord.conf;
+          ports:
+            - name: http-metrics
+              containerPort: 7878
+          resources:
+            requests:
+              memory: 256Mi
+              cpu: 200m
+            limits:
+              memory: 256Mi
+              cpu: 200m
+
+
