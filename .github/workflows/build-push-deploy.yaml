@@ -23,7 +23,7 @@ jobs:
       uses: docker/build-push-action@v4
       with:
         push: true
-        tags: nosaugowe/epltable:latest
+        tags: nosaugowe/epl-flask:latest
 
     - name: Set up AWS CLI
       uses: aws-actions/configure-aws-credentials@v1
@@ -59,7 +59,7 @@ jobs:
 
     - name: Update KubeContext
       run: make update_kubecontext
-      working-directory: $GITHUB_WORKSPACE/FlaskApp-Kubernetes 
+      working-directory: $GITHUB_WORKSPACE/src
 
     - name: Install Helm
       run: |
