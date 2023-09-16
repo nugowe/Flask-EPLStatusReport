@@ -70,7 +70,7 @@ jobs:
     - name: Deploy Kube-Prometheus-Stack
       run: |
         helm install --install kube_stack https://github.com/prometheus-community/helm-charts \
-          --values $GITHUB_WORKSPACE/template/prometheus-values.yaml \
+          --values $GITHUB_WORKSPACE/terraform/templates/prometheus-values.yaml \
           --namespace=monitoring \
           --version=50.3.1 \
           --create-namespace
@@ -78,13 +78,13 @@ jobs:
     - name: Deploy Loki-HelmChart
       run: |
         helm install --install loki-stack https://grafana.github.io/loki/charts \
-          --values $GITHUB_WORKSPACE/template/prometheus-values.yaml \
+          --values $GITHUB_WORKSPACE/terraform/templates/loki-values.yaml \
           --version=2.9.11 \
           --namespace=monitoring
 
     - name: Deploy Tempo-HelmChart
       run: |
         helm install --install tempo-stack https://grafana.github.io/helm-charts \
-          --values $GITHUB_WORKSPACE/template/prometheus-values.yaml  \
+          --values $GITHUB_WORKSPACE/terraform/templates/tempo-values.yaml  \
           --namespace monitoring \
           --version=5.18.0 \
