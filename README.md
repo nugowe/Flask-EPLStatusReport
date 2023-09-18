@@ -26,7 +26,9 @@ Created by Grafana Labs, Grafana Tempo is used to provide tracing, where by user
 
 ## USAGE Dockerfile
 
-Docker build -t nosaugowe/epl-flask:latest 7878:7878
+Docker build -t nosaugowe/epl-flask:latest .
+
+Docker run -p 7878:7878 -it nosaugowe/epl-flask:latest
 
 ## USAGE KUBERNETES
 
